@@ -11,11 +11,26 @@ s.listen(10)
 
 print("connecting to database...")
 dbconn = pyodbc.connect('Driver={SQL Server};'
-                        'Server=DESKTOP-K2BR3A1\SQLEXPRESS;'
+                        'Server=DRL-PC1608;'
                         'Database=Chatapp;'
                         'Trusted_Connection=yes;')
 cursor = dbconn.cursor()
 print("Connected...")
+
+
+class user:
+    def __init__(self, user_username, user_password):
+        self.username = user_username
+        self.password = user_password
+    def create_user(self):
+        database_write('INSERT INTO Users(Username, Password) VALUES (\'%s\',\'%s\');' % (self.username, self.password))
+
+    def hash_password(self):
+        print("test")
+
+    def check_login(self):
+        print("")
+    
 
 
 def database_read(sql_command):
@@ -32,27 +47,24 @@ def database_write(sql_command):
 
 
 def check_username(username):
-    string = 'SELECT * FROM Users WHERE Username = \'%s\'' % (username)
-    test = database_read(string)
+    test = database_read('SELECT * FROM Users WHERE Username = \'%s\'' % (username))
     checkUsername = test.fetchall()
     print(checkUsername)
     if not checkUsername:
-        return True
-    else:
         return False
+    else:
+        return True
 
-
-check_username("tau49")
-
-
-class UserFactory:
-    def create_user(self, name, password):
-        print("Test")
 
 
 while True:
     c, addr = s.accept()
     userinfo = pickle.loads(c.recv(1024))
-
-    c.send('Username'.encode("utf-8"))
+    username = userinfo[0]
+    password = userinfo[1]
+    if check_username(username):
+        print("Username is already in use")
+        c.send('Username is already in use'.encode("utf-8"))
+    else:
+        create_user(username, password)
     c.close()
