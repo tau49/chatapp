@@ -3,12 +3,13 @@ from tkinter import *
 import pickle
 
 
-port = 52245
-server = "127.0.0.1"
-address = (server, port)
-format = "utf-8"
-client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client.connect(address)
+# port = 52245
+# server = "127.0.0.1"
+# address = (server, port)
+# format = "utf-8"
+# client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# client.connect(address)
+
 
 class LoginGUI:
     def __init__(self):
@@ -48,20 +49,62 @@ class LoginGUI:
     def register(self):
         client.send(pickle.dumps([self.usernameEntry.get(), self.passwordEntry.get(), "register"]))
 
-        #message = client.recv(1024).decode(format)
-        #print(message)
+        # message = client.recv(1024).decode(format)
+        # print(message)
 
     def login(self):
         print("test")
-        #client.send(pickle.dumps([self.usernameEntry.get(), self.passwordEntry.get(), "login"]))
-        #message = client.recv(1024).decode(format)
+        # client.send(pickle.dumps([self.usernameEntry.get(), self.passwordEntry.get(), "login"]))
+        # message = client.recv(1024).decode(format)
+
 
 class ClientGui:
     def __init__(self):
+        self.client_gui = Tk()
+        # self.client_gui.title("Chatroom")
+        # self.client_gui.geometry("300x250")
+        # self.client_gui.resizable(False, False)
+        self.messages = Text(self.client_gui)
+        self.messages.pack()
+        self.input_user = StringVar()
+        self.input_field = Entry(self.client_gui, text=self.input_user)
+        self.input_field.pack(side=BOTTOM, fill=X)
+        self.frame = Frame(self.client_gui)  # , width=300, height=300)
+        # input_field.bind("<Return>", )
+        self.frame.pack()
+        self.menubar = Menu(self.client_gui)
+        self.filemenu = Menu(self.menubar, tearoff=0)
+        self.filemenu.add_command(label="Open", command=self.hello())
+        self.filemenu.add_command(label="Save", command=self.hello())
+        self.filemenu.add_separator()
+        self.filemenu.add_command(label="Exit", command=self.client_gui.quit)
+        self.menubar.add_cascade(label="File", menu=self.filemenu)
+        self.client_gui.config(menu=self.menubar)
+
+    def hello(self):
+        print("Hello")
+
+    def enter_pressed(self, event):
+        self.input_get = self.input_field.get()
+        print(self.input_get)
+        label = Label(self.client_gui, text=self.input_get)
+        self.input_user.set('')
+        label.pack()
+        return "break"
+
+    def run_gui(self):
+        print("Starting GUI")
+        self.client_gui.mainloop()
 
 
+class AdminGui(ClientGui):
+    def __init__(self):
+        super().__init__()
+        self.filemenu.add_command(label="Admin", command=self.hello())
+        self.client_gui.config(menu=self.menubar)
 
 
+# client = LoginGUI()
 
-
-client = LoginGUI()
+client = ClientGui()
+client.run_gui()
