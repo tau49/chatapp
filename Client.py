@@ -47,7 +47,7 @@ class LoginGUI:
         ok_button.pack()
 
     def register(self):
-        client.send(pickle.dumps([self.usernameEntry.get(), self.passwordEntry.get(), "register"]))
+        self.client.send(pickle.dumps([self.usernameEntry.get(), self.passwordEntry.get(), "register"]))
 
         # message = client.recv(1024).decode(format)
         # print(message)
@@ -64,13 +64,18 @@ class ClientGui:
         # self.client_gui.title("Chatroom")
         # self.client_gui.geometry("300x250")
         # self.client_gui.resizable(False, False)
-        self.messages = Text(self.client_gui)
-        self.messages.pack()
         self.input_user = StringVar()
         self.input_field = Entry(self.client_gui, text=self.input_user)
         self.input_field.pack(side=BOTTOM, fill=X)
+        self.messages = Text(self.client_gui)
+        self.messages.yview_pickplace("end")
+        self.messages.pack(side=LEFT, fill=Y)
+        self.scrollbar = Scrollbar(self.client_gui)
+        self.scrollbar.pack(side=RIGHT, fill=Y)
+        self.messages.config(yscrollcommand=self.scrollbar.set)
+        self.scrollbar.config(command=self.messages.yview)
         self.frame = Frame(self.client_gui)  # , width=300, height=300)
-        # input_field.bind("<Return>", )
+        self.input_field.bind("<Return>", self.enter_pressed)
         self.frame.pack()
         self.menubar = Menu(self.client_gui)
         self.filemenu = Menu(self.menubar, tearoff=0)
@@ -86,10 +91,9 @@ class ClientGui:
 
     def enter_pressed(self, event):
         self.input_get = self.input_field.get()
-        print(self.input_get)
-        label = Label(self.client_gui, text=self.input_get)
+        self.messages.insert(INSERT, '%s\n' % self.input_get)
         self.input_user.set('')
-        label.pack()
+        self.messages.yview_pickplace("end")
         return "break"
 
     def run_gui(self):
