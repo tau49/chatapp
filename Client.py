@@ -2,6 +2,7 @@ import socket
 from tkinter import *
 import pickle
 
+
 port = 52245
 server = "127.0.0.1"
 address = (server, port)
@@ -46,10 +47,12 @@ class LoginGUI:
 
     def register(self):
         client.send(pickle.dumps([self.usernameEntry.get(), self.passwordEntry.get(), "register"]))
-        message = client.recv(1024).decode(format)
-        print(message)
+
+        #message = client.recv(1024).decode(format)
+        #print(message)
 
     def login(self):
+        print("test")
         #client.send(pickle.dumps([self.usernameEntry.get(), self.passwordEntry.get(), "login"]))
         #message = client.recv(1024).decode(format)
 

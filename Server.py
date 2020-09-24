@@ -6,31 +6,25 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_address = socket.gethostbyname(socket.gethostname())
 port = 52245
 s.bind(('', port))
-clients, names = [], []
+client_list = []
+client_names = []
 s.listen(10)
 
 print("connecting to database...")
 dbconn = pyodbc.connect('Driver={SQL Server};'
-                        'Server=DRL-PC1608;'
+                        'Server=DESKTOP-K2BR3A1\SQLEXPRESS;'
                         'Database=Chatapp;'
                         'Trusted_Connection=yes;')
 cursor = dbconn.cursor()
 print("Connected...")
 
 
-class user:
-    def __init__(self, user_username, user_password):
-        self.username = user_username
-        self.password = user_password
-    def create_user(self):
-        database_write('INSERT INTO Users(Username, Password) VALUES (\'%s\',\'%s\');' % (self.username, self.password))
+def create_user(user_username, user_password):
+    database_write('INSERT INTO Users(Username, Password) VALUES (\'%s\',\'%s\');' % (user_username, user_password))
 
-    def hash_password(self):
-        print("test")
 
-    def check_login(self):
-        print("")
-    
+def hash_password():
+    print("test")
 
 
 def database_read(sql_command):
@@ -48,23 +42,29 @@ def database_write(sql_command):
 
 def check_username(username):
     test = database_read('SELECT * FROM Users WHERE Username = \'%s\'' % (username))
-    checkUsername = test.fetchall()
-    print(checkUsername)
-    if not checkUsername:
+    check_username = test.fetchall()
+    print(check_username)
+    if not check_username:
         return False
     else:
         return True
 
+def client_thread(client_connection, client_address):
+    
 
 
 while True:
-    c, addr = s.accept()
-    userinfo = pickle.loads(c.recv(1024))
-    username = userinfo[0]
-    password = userinfo[1]
-    if check_username(username):
-        print("Username is already in use")
-        c.send('Username is already in use'.encode("utf-8"))
-    else:
-        create_user(username, password)
-    c.close()
+    connection, address = s.accept()
+    if connection:
+        while True:
+            userinfo = pickle.loads(connection.recv(1024))
+            username = userinfo[0]
+            password = userinfo[1]
+            if check_username(username):
+                print("Username is already in use")
+                connection.send('Username is already in use'.encode("utf-8"))
+            else:
+                create_user(username, password)
+                client_list.append(connection)
+                client_names.append(username)
+                break
