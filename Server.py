@@ -49,8 +49,24 @@ def check_username(username):
     else:
         return True
 
+#def check_command()
+
+def stop_connection(client_connection):
+    if client_connection in client_list:
+        client_list.remove(connection)
+
 def client_thread(client_connection, client_address):
-    
+    while True:
+        try:
+            message = client_connection.recv(1024)
+            if message:
+                #if message[0] == "!":
+                    #check_command
+            else:
+                stop_connection(client_connection)
+        except:
+            continue
+
 
 
 while True:

@@ -56,7 +56,8 @@ class LoginGUI:
         #client.send(pickle.dumps([self.usernameEntry.get(), self.passwordEntry.get(), "login"]))
         #message = client.recv(1024).decode(format)
 
-
+class ClientGui:
+    def __init__(self):
 
 
 
