@@ -55,7 +55,13 @@ class LoginGUI:
     def login(self):
         print("test")
         client.send(pickle.dumps([self.usernameEntry.get(), self.passwordEntry.get(), "login"]))
-        #message = client.recv(1024).decode(format)
+        message = client.recv(1024).decode(format)
+        if message == 'Login success':
+            self.login_window.destroy()
+            clientgui = ClientGui()
+            clientgui.run_gui()
+        elif message == 'Login failed':
+            self.popup_message("Login failed either your username or password is wrong")
 
 
 class ClientGui:

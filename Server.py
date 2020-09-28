@@ -1,5 +1,7 @@
 import socket
 import pickle
+from threading import Thread
+
 import pyodbc
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -12,7 +14,8 @@ s.listen(10)
 
 print("connecting to database...")
 dbconn = pyodbc.connect('Driver={SQL Server};'
-                        'Server=DRL-PC1608;'
+                        'Server=DESKTOP-K2BR3A1\SQLEXPRESS;'
+                        # 'Server=DRL-PC1608;'
                         'Database=Chatapp;'
                         'Trusted_Connection=yes;')
 cursor = dbconn.cursor()
@@ -48,7 +51,6 @@ def login(login_username, login_password):
 
 
 def database_read(sql_command):
-    print(sql_command)
     cursor.execute(sql_command)
     return cursor
 
@@ -76,7 +78,7 @@ def stop_connection(client_connection):
         client_list.remove(connection)
 
 
-def client_thread(client_connection, client_address):
+def client_thread(client_connection):
     while True:
         try:
             message = client_connection.recv(1024)
@@ -86,10 +88,17 @@ def client_thread(client_connection, client_address):
                         stop_connection(client_connection)
                     else:
                         print("check command")
+                else:
+                    broadcast(message)
             else:
                 stop_connection(client_connection)
         except:
             continue
+
+
+def broadcast(message):
+    for client in client_list:
+        client.send(message)
 
 
 while True:
@@ -114,5 +123,7 @@ while True:
                     client_list.append(connection)
                     client_names.append(username)
                     connection.send('Login success'.encode("utf-8"))
+                    thread = Thread(target=client_thread(connection))
+                    thread.start()
                 else:
-                    connection.send('Login failed successfully'.encode("utf-8"))
+                    connection.send('Login failed'.encode("utf-8"))
