@@ -3,12 +3,12 @@ from tkinter import *
 import pickle
 
 
-# port = 52245
-# server = "127.0.0.1"
-# address = (server, port)
-# format = "utf-8"
-# client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-# client.connect(address)
+port = 52245
+server = "127.0.0.1"
+address = (server, port)
+format = "utf-8"
+client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client.connect(address)
 
 
 class LoginGUI:
@@ -47,15 +47,15 @@ class LoginGUI:
         ok_button.pack()
 
     def register(self):
-        self.client.send(pickle.dumps([self.usernameEntry.get(), self.passwordEntry.get(), "register"]))
+        client.send(pickle.dumps([self.usernameEntry.get(), self.passwordEntry.get(), "register"]))
 
         # message = client.recv(1024).decode(format)
         # print(message)
 
     def login(self):
         print("test")
-        # client.send(pickle.dumps([self.usernameEntry.get(), self.passwordEntry.get(), "login"]))
-        # message = client.recv(1024).decode(format)
+        client.send(pickle.dumps([self.usernameEntry.get(), self.passwordEntry.get(), "login"]))
+        #message = client.recv(1024).decode(format)
 
 
 class ClientGui:
@@ -79,15 +79,19 @@ class ClientGui:
         self.frame.pack()
         self.menubar = Menu(self.client_gui)
         self.filemenu = Menu(self.menubar, tearoff=0)
-        self.filemenu.add_command(label="Open", command=self.hello())
-        self.filemenu.add_command(label="Save", command=self.hello())
+        self.filemenu.add_command(label="Open", command=lambda: self.hello())
+        self.filemenu.add_command(label="Save", command=lambda: self.hello())
         self.filemenu.add_separator()
-        self.filemenu.add_command(label="Exit", command=self.client_gui.quit)
+        self.filemenu.add_command(label="Exit", command=lambda: self.end_session())
         self.menubar.add_cascade(label="File", menu=self.filemenu)
         self.client_gui.config(menu=self.menubar)
 
     def hello(self):
         print("Hello")
+
+    def end_session(self):
+        #client.send('!exit'.encode("utf-8"))
+        self.client_gui.quit()
 
     def enter_pressed(self, event):
         self.input_get = self.input_field.get()
@@ -108,7 +112,8 @@ class AdminGui(ClientGui):
         self.client_gui.config(menu=self.menubar)
 
 
-# client = LoginGUI()
 
-client = ClientGui()
-client.run_gui()
+client = LoginGUI()
+
+#client = ClientGui()
+#client.run_gui()
