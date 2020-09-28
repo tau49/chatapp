@@ -4,7 +4,7 @@ import pickle
 
 
 port = 52245
-server = "127.0.0.1"
+server = "192.168.87.104"
 address = (server, port)
 format = "utf-8"
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

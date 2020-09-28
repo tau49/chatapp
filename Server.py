@@ -7,10 +7,11 @@ import pyodbc
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_address = socket.gethostbyname(socket.gethostname())
 port = 52245
-s.bind(('', port))
+ADDRESS = (server_address, port)
+print(server_address)
+s.bind(ADDRESS)
 client_list = []
 client_names = []
-s.listen(10)
 
 print("connecting to database...")
 dbconn = pyodbc.connect('Driver={SQL Server};'
@@ -101,29 +102,33 @@ def broadcast(message):
         client.send(message)
 
 
+s.listen(10)
+
 while True:
+    print("oi")
     connection, address = s.accept()
-    if connection:
-        while True:
-            userinfo = pickle.loads(connection.recv(1024))
-            username = userinfo[0]
-            password = userinfo[1]
-            command = userinfo[2]
-            if command == "register":
-                if check_username(username):
-                    print("Username is already in use")
-                    connection.send('Username is already in use'.encode("utf-8"))
-                else:
-                    create_user(username, password)
-                    client_list.append(connection)
-                    client_names.append(username)
-                    break
-            else:
-                if login(username, password):
-                    client_list.append(connection)
-                    client_names.append(username)
-                    connection.send('Login success'.encode("utf-8"))
-                    thread = Thread(target=client_thread(connection))
-                    thread.start()
-                else:
-                    connection.send('Login failed'.encode("utf-8"))
+    userinfo = pickle.loads(connection.recv(1024))
+    username = userinfo[0]
+    password = userinfo[1]
+    command = userinfo[2]
+    if command == "register":
+        if check_username(username):
+            print("Username is already in use")
+            connection.send('Username is already in use'.encode("utf-8"))
+        else:
+            create_user(username, password)
+            client_list.append(connection)
+            client_names.append(username)
+            break
+    else:
+        if login(username, password):
+            client_list.append(connection)
+            client_names.append(username)
+            connection.send('Login success'.encode("utf-8"))
+            print("test")
+            thread = Thread(target=client_thread, args=(username,))
+            print("test")
+            thread.start()
+            print("test")
+        else:
+            connection.send('Login failed'.encode("utf-8"))
