@@ -1,6 +1,7 @@
 import socket
 from tkinter import *
 import pickle
+from threading import Thread
 
 
 port = 52245
@@ -104,11 +105,28 @@ class ClientGui:
         self.messages.insert(INSERT, '%s\n' % self.input_get)
         self.input_user.set('')
         self.messages.yview_pickplace("end")
-        return "break"
+        self.input_field.delete(0, 'end')
+        client.send(self.input_get.encode(format))
 
     def run_gui(self):
         print("Starting GUI")
+        self.client_reciever = Thread(target=self.receiver())
         self.client_gui.mainloop()
+
+    def send_message(self, message):
+        client.send(message.encode(format))
+
+    def receiver(self):
+        while True:
+            try:
+                self.broadcast_message = client.recv(1024).decode(format)
+                self.messages.insert(INSERT, '%s\n' % self.broadcast_message)
+                self.messages.yview_pickplace("end")
+
+            except:
+                client.close()
+
+
 
 
 class AdminGui(ClientGui):
