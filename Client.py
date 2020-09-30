@@ -3,7 +3,6 @@ from tkinter import *
 import pickle
 from threading import Thread
 
-
 port = 52245
 server = "192.168.87.104"
 address = (server, port)
@@ -48,9 +47,20 @@ class LoginGUI:
         ok_button.pack()
 
     def register(self):
-        client.send(pickle.dumps([self.usernameEntry.get(), self.passwordEntry.get(), "register"]))
 
-        # message = client.recv(1024).decode(format)
+        client.send(pickle.dumps([self.usernameEntry.get(), self.passwordEntry.get(), "register"]))
+        print("I get here")
+        message = client.recv(1024).decode(format)
+        print("I get here 2?")
+        print(message)
+        if message == 'Username is already in use':
+            print("test")
+            self.popup_message("this username is already in use please choose another")
+        elif message == 'Welcome':
+            self.popup_message("User created")
+            self.login_window.destroy()
+            clientgui = ClientGui()
+            clientgui.run_gui()
         # print(message)
 
     def login(self):
@@ -97,7 +107,7 @@ class ClientGui:
         print("Hello")
 
     def end_session(self):
-        #client.send('!exit'.encode("utf-8"))
+        # client.send('!exit'.encode("utf-8"))
         self.client_gui.quit()
 
     def enter_pressed(self, event):
@@ -120,14 +130,15 @@ class ClientGui:
     def receiver(self):
         while True:
             try:
+                print("i get here3")
                 self.broadcast_message = client.recv(1024).decode(format)
                 self.messages.insert(INSERT, '%s\n' % self.broadcast_message)
                 self.messages.yview_pickplace("end")
+                print("i get here 2")
 
             except:
+                print("i get here")
                 client.close()
-
-
 
 
 class AdminGui(ClientGui):
@@ -137,8 +148,7 @@ class AdminGui(ClientGui):
         self.client_gui.config(menu=self.menubar)
 
 
-
 client = LoginGUI()
 
-#client = ClientGui()
-#client.run_gui()
+# client = ClientGui()
+# client.run_gui()
