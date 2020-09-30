@@ -12,6 +12,7 @@ print(server_address)
 s.bind(ADDRESS)
 client_list = []
 client_names = []
+format = "utf-8"
 
 print("connecting to database...")
 dbconn = pyodbc.connect('Driver={SQL Server};'
@@ -82,7 +83,8 @@ def stop_connection(client_connection):
 def client_thread(client_connection):
     while True:
         try:
-            message = client_connection.recv(1024)
+            message = client_connection.recv(1024).decode(format)
+            print(message)
             if message:
                 if message[0] == "!":
                     if message == '!exit':
@@ -90,16 +92,23 @@ def client_thread(client_connection):
                     else:
                         print("check command")
                 else:
-                    broadcast(message)
+                    print("i get here")
+                    broadcast(message, client_connection)
             else:
+                print("tes4564654t")
                 stop_connection(client_connection)
+                break
         except:
             continue
 
 
-def broadcast(message):
+def broadcast(message, conn):
     for client in client_list:
-        client.send(message)
+        print(conn)
+        print(client)
+        if not client == conn:
+            client.send(message.encode(format))
+        print("i get here")
 
 
 s.listen(10)
@@ -116,6 +125,7 @@ while True:
             print("Username is already in use")
             connection.send('Username is already in use'.encode("utf-8"))
         else:
+            connection.send('Welcome'.encode("utf-8"))
             create_user(username, password)
             client_list.append(connection)
             client_names.append(username)
@@ -126,7 +136,7 @@ while True:
             client_names.append(username)
             connection.send('Login success'.encode("utf-8"))
             print("test")
-            thread = Thread(target=client_thread, args=(username,))
+            thread = Thread(target=client_thread, args=(connection,))
             print("test")
             thread.start()
             print("test")
