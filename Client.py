@@ -110,7 +110,8 @@ class ClientGui:
 
     def run_gui(self):
         print("Starting GUI")
-        self.client_reciever = Thread(target=self.receiver())
+        client_receiver = Thread(target=lambda: self.receiver())
+        client_receiver.start()
         self.client_gui.mainloop()
 
     def send_message(self, message):
