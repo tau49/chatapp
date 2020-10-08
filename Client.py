@@ -70,6 +70,7 @@ class LoginGUI:
         message = client.recv(1024).decode(format)
         if message == 'Login success':
             self.login_window.destroy()
+            # clientgui = ClientGui(self.username)
             clientgui = AdminGui(self.username)
             clientgui.run_gui()
         elif message == 'Login failed':
@@ -154,7 +155,8 @@ class ClientGui:
         string = "Username: {} \n running: clientGUI ".format(self.username[0])
         self.popup_message(string)
 
-# dette er admin guien som nedarver klient guien og har så nogle andre funktioner
+# dette er admin guien som nedarver klient guien og har så nogle andre funktioner grunden til dette er at så skal
+# man ikke skrive hele guien fra bunden igen og derved undgår man også at gentage sig selv.
 class AdminGui(ClientGui):
     def __init__(self, *username):
         super().__init__()
@@ -163,7 +165,8 @@ class AdminGui(ClientGui):
         self.filemenu.add_command(label="Ban", command=self.ban_user())
         self.client_gui.config(menu=self.menubar)
 
-# her har jeg så lavet info metoden igen og overskriver den så, så den gør noget andet i adminGUIen.
+    # her har jeg så lavet info metoden igen og overskriver den så, så den gør noget andet i adminGUIen.
+    # derved har jeg lavet method override.
     def info(self):
         string = "Username: {} \n running: adminGUI \n Current server: {}:{} \n Your IP: {} "\
             .format(self.username[0], server, port, socket.gethostbyname(socket.gethostname()))
